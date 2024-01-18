@@ -24,7 +24,7 @@ while True:
     if contours:
         largest_contour = max(contours, key=cv.contourArea)
         x, y, w, h = cv.boundingRect(largest_contour)
-        cv.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        cv.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
     # Bitwise-AND mask and original image
     res = cv.bitwise_and(frame, frame, mask=mask)
