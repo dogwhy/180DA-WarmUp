@@ -1,53 +1,62 @@
-import cv2 as cv
+import cv2
 import numpy as np
+from sklearn.cluster import KMeans
 
-cap = cv.VideoCapture(0)
+def find_histogram(clt):
+    numLabels = np.arange(0, len(np.unique(clt.labels_)) + 1)
+    (hist, _) = np.histogram(clt.labels_, bins=numLabels)
+    hist = hist.astype("float")
+    hist /= hist.sum()
+    return hist
+
+def plot_colors2(hist, centroids):
+    bar = np.zeros((50, 300, 3), dtype="uint8")
+    startX = 0
+    for (percent, color) in zip(hist, centroids):
+        endX = startX + (percent * 300)
+        cv2.rectangle(bar, (int(startX), 0), (int(endX), 50),
+                      color.astype("uint8").tolist(), -1)
+        startX = endX
+    return bar
+
+# Capture video from webcam (0 is usually the default webcam)
+cap = cv2.VideoCapture(0)
+
+# Create a window to display the video feed
+cv2.namedWindow('Video Feed', cv2.WINDOW_NORMAL)
 
 while True:
-    # Take each frame
-    _, frame = cap.read()
+    # Read a frame from the video feed
+    ret, frame = cap.read()
 
-    # Define the coordinates of the central rectangle
-    x, y, w, h = 200, 150, 100, 100
+    # Convert the frame to RGB
+    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-    # Extract the region of interest (ROI) from the frame
-    roi = frame[y:y+h, x:x+w]
+    # Reshape the frame
+    img = frame_rgb.reshape((frame_rgb.shape[0] * frame_rgb.shape[1], 3))
 
-    # Convert the ROI from BGR to HSV
-    hsv_roi = cv.cvtColor(roi, cv.COLOR_BGR2HSV)
+    # Apply KMeans clustering
+    clt = KMeans(n_clusters=3)
+    clt.fit(img)
 
-    # Reshape the ROI to a list of pixels
-    pixels = hsv_roi.reshape((-1, 3))
+    # Find histogram and dominant color
+    hist = find_histogram(clt)
+    dominant_color = clt.cluster_centers_[np.argmax(hist)]
 
-    # Convert pixels to float32
-    pixels = np.float32(pixels)
+    # Create a small image of the dominant color
+    dominant_img = np.zeros((50, 50, 3), dtype="uint8")
+    dominant_img[:, :] = dominant_color.astype("uint8")
 
-    # Perform k-means clustering to find dominant color
-    criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 100, 0.2)
-    k = 1  # Number of clusters (dominant color)
-    _, labels, centers = cv.kmeans(pixels, k, None, criteria, 10, cv.KMEANS_RANDOM_CENTERS)
+    frame[0:50, 0:50] = dominant_img
 
-    # Convert the center back to uint8
-    dominant_color = np.uint8(centers[0])
+    # Display the video feed
+    cv2.imshow('dominant', frame)
 
-    # Create an image of the dominant color
-    color_image = np.zeros((50, 50, 3), dtype=np.uint8)
-    color_image[:, :] = dominant_color
-
-    # Display the color image in the top-left corner
-    frame[0:50, 0:50] = color_image
-
-    # Draw a rectangle around the central region
-    cv.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-
-    # Display the frames
-    cv.imshow('frame', frame)
-
-    # Break the loop if 'Esc' key is pressed
+    # Break the loop if 'q' key is pressed
     k = cv.waitKey(5) & 0xFF
     if k == 27:
         break
 
-# Release the capture and close all windows
+# Release the video capture object and close the window
 cap.release()
-cv.destroyAllWindows()
+cv2.destroyAllWindows()
