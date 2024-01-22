@@ -53,7 +53,7 @@ while True:
     cv2.imshow('dominant', frame)
 
     # Break the loop if 'q' key is pressed
-    k = cv.waitKey(5) & 0xFF
+    k = cv2.waitKey(5) & 0xFF
     if k == 27:
         break
 
