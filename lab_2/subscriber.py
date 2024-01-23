@@ -17,9 +17,14 @@ def on_disconnect(client, userdata, rc):
 
 # The default message callback.
 # (you can create separate callbacks per subscribed topic)
+
 def on_message(client, userdata, message):
-    print('Received message: "' + str(message.payload) + '" on topic "' +
-          message.topic + '" with QoS ' + str(message.qos))
+    print(str(message.payload))
+
+    
+    # Process the incoming message and send a response
+    response_message = "Received your message: " + str(message.payload)
+    client.publish("ece180d/response", response_message, qos=1)
 
 # 1. create a client instance.
 client = mqtt.Client()
