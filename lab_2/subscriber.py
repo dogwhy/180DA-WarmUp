@@ -42,7 +42,9 @@ client.connect_async('mqtt.eclipseprojects.io')
 client.loop_start()
 
 while True:  # perhaps add a stopping condition using some break or something.
+    
     pass  # do your non-blocked other stuff here, like receive IMU data or something.
+
 
 # use subscribe() to subscribe to a topic and receive messages.
 # use publish() to publish messages to the broker.
