@@ -32,10 +32,10 @@ client.loop_start()
 
 # Use input() to get user input for the message
 while(1):
-    user_input = input("Enter your message: ")
+    user_input = input("Enter your message: (type 'end' to stop sending messages)")
     if (user_input == "end"): break
     print('Publishing...')
-    client.publish("ece180d/test", user_input, qos=1)
+    client.publish("sharpiespeaks", user_input, qos=1)
 
 client.loop_stop()
 client.disconnect()
