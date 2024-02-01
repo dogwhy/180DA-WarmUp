@@ -1,5 +1,6 @@
 import paho.mqtt.client as mqtt
 
+
 # Callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
     print("Connection returned result: " + str(rc))
@@ -32,7 +33,7 @@ client.loop_start()
 
 # Use input() to get user input for the message
 while(1):
-    user_input = input("Enter your message ('end' to stop): ")
+    user_input = input("Say something ('end' to stop): ")
     if (user_input == "end"): break
     print('Publishing...')
     client.publish("sharpiespeaks", user_input, qos=1)

@@ -1,5 +1,6 @@
 import random
 import time
+import paho.mqtt.client as mqtt
 
 import speech_recognition as sr
 
@@ -54,7 +55,7 @@ def recognize_speech_from_mic(recognizer, microphone):
 
 if __name__ == "__main__":
     # set the list of words, maxnumber of guesses, and prompt limit
-    WORDS = ["apple", "banana", "grape", "orange", "mango", "lemon"]
+    WORDS = ["A", "V", "E", "B", "D", "Z"]
     NUM_GUESSES = 3
     PROMPT_LIMIT = 5
 

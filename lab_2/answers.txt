@@ -1,0 +1,22 @@
+1) Consider how to use MQTT for the project. Based on your experiences, what is made possible us-
+ing MQTT? What seems fairly difficult using MQTT? If you were to use MQTT, what would be a
+reasonable communications lag time be? Would you prefer to use a different method of transmitting
+data?
+
+2) Try more similar sounding words (particularly bad examples may be words like “sound” and
+“found”, letters (A, B, C , D, E , F, G). Does the performance start taking a hit?
+
+3) How long of a phrase can work? Is the length of a phrase actually a good thing for
+“error correction”?
+
+4) Play music in the background. Go to a coffee shop (or work in the lab). How well does it work in
+noise? What are ways to improve its performance in noise?
+
+5) Write some short bullet points with some individual thoughts on how this applies to your project:
+    (a) What can you do with your given speech program in the project?
+    (b) How complex do you want your speech recognition to be? How complex can you reasonably expect
+    your speech recognition to be?
+    (c) What level of speech accuracy do you need? In other words, how quickly do you need an accurate
+    recognition? Does a missed recognition hurt the progress of the game?
+    (d) Do you need specific hardware, specific conditions, etc. to have a reasonable confidence that it
+    works well enough?
