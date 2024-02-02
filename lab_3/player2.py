@@ -26,5 +26,7 @@ topic = f"rps/{player_name}"
 
 while True:
     move = input("Enter your move (r for rock, p for paper, s for scissors): ")
+    if (move == "q"):break
+
     client.publish(topic, move, qos=1)
     print(f"Move '{move}' sent to referee.")
