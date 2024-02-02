@@ -1,20 +1,12 @@
+import paho.mqtt.client as mqtt
 import random
 
 class RockPaperScissorsGame:
     def __init__(self):
         self.user_choices = {'r': 'rock', 'p': 'paper', 's': 'scissors'}
         self.results = {'win': 0, 'lose': 0, 'draw': 0}
-
-    def get_user_choice(self):
-        while True:
-            user_input = input("Enter 'r' for rock, 'p' for paper, or 's' for scissors: ").lower()
-            if user_input in self.user_choices:
-                return user_input
-            else:
-                print("Invalid input. Please enter 'r', 'p', or 's'.")
-
-    def get_bot_choice(self):
-        return random.choice(list(self.user_choices.keys()))
+        self.player_moves = {'player1': None, 'player2': None}
+        self.game_state = 'waiting'
 
     def determine_winner(self, user_choice, bot_choice):
         if user_choice == bot_choice:
@@ -27,33 +19,60 @@ class RockPaperScissorsGame:
             return 'lose'
 
     def play_game(self):
-        while True:
-            user_choice = self.get_user_choice()
-            bot_choice = self.get_bot_choice()
+        if self.game_state == 'completed':
+            return  # Ignore if the game is already completed
 
-            print(f"You chose {self.user_choices[user_choice]}")
-            print(f"The bot chose {self.user_choices[bot_choice]}")
-
-            result = self.determine_winner(user_choice, bot_choice)
-            print(f"You {result}!\n")
-
+        if self.player_moves['player1'] is not None and self.player_moves['player2'] is not None:
+            result = self.determine_winner(self.player_moves['player1'], self.player_moves['player2'])
             self.results[result] += 1
             self.print_results()
 
-            play_again = input("Do you want to play again? (y/n): ").lower()
-            if play_again != 'y':
-                print("Thanks for playing!")
-                break
-            
+            # Notify both players of the result
+            client.publish("rps/player1/result", result, qos=1)
+            client.publish("rps/player2/result", result, qos=1)
+
+            # Reset moves and set the state to 'waiting'
+            self.player_moves = {'player1': None, 'player2': None}
+            self.game_state = 'waiting'
+
     def print_results(self):
         print("----- Results -----")
-        print(f"Wins: {self.results['win']}")
-        print(f"Loses: {self.results['lose']}")
+        print(f"Player1 Wins: {self.results['win']}")
+        print(f"Player2 Wins: {self.results['lose']}")
         print(f"Draws: {self.results['draw']}")
         print("-------------------")
 
+game = RockPaperScissorsGame()
 
-if __name__ == "__main__":
-    game = RockPaperScissorsGame()
+def on_connect(client, userdata, flags, rc):
+    print("Connection returned result: " + str(rc))
+    client.subscribe("rps/player1", qos=1)
+    client.subscribe("rps/player2", qos=1)
+
+def on_disconnect(client, userdata, rc):
+    if rc != 0:
+        print('Unexpected Disconnect')
+    else:
+        print('Expected Disconnect')
+
+def on_message(client, userdata, message):
+    player_choice = str(message.payload, 'utf-8')
+    print(f"Received move '{player_choice}' from {message.topic}")
+
+    if message.topic == "rps/player1":
+        game.player_moves['player1'] = player_choice
+    elif message.topic == "rps/player2":
+        game.player_moves['player2'] = player_choice
+
     game.play_game()
 
+client = mqtt.Client()
+client.on_connect = on_connect
+client.on_disconnect = on_disconnect
+client.on_message = on_message
+
+client.connect_async('mqtt.eclipseprojects.io')
+client.loop_start()
+
+while True:
+    pass  # Continue running the loop to listen for messages
