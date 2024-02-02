@@ -1,13 +1,13 @@
 import paho.mqtt.client as mqtt
 import random
-
+end_condition = False
 class RockPaperScissorsGame:
     def __init__(self):
         self.user_choices = {'r': 'rock', 'p': 'paper', 's': 'scissors'}
         self.results = {'win': 0, 'lose': 0, 'draw': 0}
         self.player_moves = {'player1': None, 'player2': None}
         self.game_state = 'waiting'
-
+        self.game_end = False
     def determine_winner(self, user_choice, bot_choice):
         if user_choice == bot_choice:
             return 'draw'
@@ -37,6 +37,7 @@ class RockPaperScissorsGame:
 
     def print_results(self):
         print("----- Results -----")
+        print("")
         print(f"Player1 Wins: {self.results['win']}")
         print(f"Player2 Wins: {self.results['lose']}")
         print(f"Draws: {self.results['draw']}")
@@ -58,12 +59,16 @@ def on_disconnect(client, userdata, rc):
 def on_message(client, userdata, message):
     player_choice = str(message.payload, 'utf-8')
     print(f"Received move '{player_choice}' from {message.topic}")
+    if (player_choice == "q"): 
+        global end_condition 
+        end_condition= True
+        print (str(message.topic)[4:] ,"ended the game")
 
     if message.topic == "rps/player1":
         game.player_moves['player1'] = player_choice
     elif message.topic == "rps/player2":
         game.player_moves['player2'] = player_choice
-
+        
     game.play_game()
 
 client = mqtt.Client()
@@ -74,5 +79,6 @@ client.on_message = on_message
 client.connect_async('mqtt.eclipseprojects.io')
 client.loop_start()
 
-while True:
+while (not end_condition):
+    
     pass  # Continue running the loop to listen for messages
