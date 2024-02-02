@@ -37,7 +37,6 @@ class RockPaperScissorsGame:
 
     def print_results(self):
         print("----- Results -----")
-        print("")
         print(f"Player1 Wins: {self.results['win']}")
         print(f"Player2 Wins: {self.results['lose']}")
         print(f"Draws: {self.results['draw']}")
